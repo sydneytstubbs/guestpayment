@@ -6,10 +6,139 @@
   <title>Aqua Healthcare — Guest Payment</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #0970c5; --primary-dark: #0757a0; --bg: #f6f8fb; --white: #ffffff;
+      --border-card: #b0bec5; --border-input: rgba(0,0,0,0.23);
+      --text-primary: rgba(0,0,0,0.87); --text-secondary: rgba(0,0,0,0.6);
+      --text-label: #323a41; --divider: rgba(0,0,0,0.12); --error: #d32f2f;
+      --success-green: #388e3c; --success-bg: #e8f5e9;
+      --shadow-btn: 0px 1px 5px rgba(0,0,0,0.12),0px 2px 2px rgba(0,0,0,0.14),0px 3px 1px -2px rgba(0,0,0,0.20);
+      --radius-card: 6px; --radius-btn: 4px; --font: 'Roboto', sans-serif;
+    }
+    body { font-family: var(--font); background: var(--bg); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
+    .header { background: var(--white); height: 73px; border-bottom: 1px solid var(--divider); display: flex; align-items: center; padding: 0 181px; position: sticky; top: 0; z-index: 100; }
+    .logo { display: flex; align-items: center; gap: 8px; }
+    .logo-text .aqua { font-size: 22px; font-weight: 700; color: #1565C0; display: block; letter-spacing: 0.3px; }
+    .logo-text .hc { font-size: 8px; font-weight: 500; color: #1565C0; display: block; letter-spacing: 2.5px; text-transform: uppercase; }
+    .screen { display: none; padding: 48px 24px 80px; min-height: calc(100vh - 73px); }
+    .screen.active { display: block; }
+    .col { width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+    .page-title { font-size: 34px; font-weight: 400; line-height: 1.235; letter-spacing: 0.25px; color: var(--text-primary); }
+    .page-subtitle { font-size: 16px; line-height: 1.5; letter-spacing: 0.15px; color: var(--text-secondary); margin-top: 6px; }
+    .section-label { font-size: 20px; font-weight: 500; line-height: 1.6; letter-spacing: 0.15px; color: var(--text-primary); }
+    .card { background: var(--white); border: 1px solid var(--border-card); border-radius: var(--radius-card); overflow: hidden; }
+    .card-body { padding: 24px; }
+    .radio-row { background: var(--white); border: 1px solid var(--border-card); border-radius: var(--radius-card); overflow: hidden; cursor: pointer; }
+    .radio-row-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; transition: background 0.15s; }
+    .radio-row.selected .radio-row-header { background: #EAF2FB; }
+    .radio-row:hover:not(.selected) .radio-row-header { background: #fafafa; }
+    .r-circle { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #bdbdbd; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: border-color 0.15s; }
+    .radio-row.selected .r-circle { border-color: var(--primary); }
+    .r-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); opacity: 0; transition: opacity 0.15s; }
+    .radio-row.selected .r-dot { opacity: 1; }
+    .r-label { font-size: 16px; line-height: 1.5; font-weight: 500; color: var(--text-primary); flex: 1; }
+    .radio-expanded { display: none; flex-direction: column; gap: 16px; padding: 16px; background: var(--white); border-top: 1px solid var(--divider); }
+    .radio-expanded.open { display: flex; }
+    .badge-row { display: flex; align-items: center; gap: 6px; }
+    .badge-visa { font-size: 10px; font-weight: 700; color: #1a1f71; border: 1px solid #e0e0e0; border-radius: 3px; padding: 2px 5px; }
+    .badge-mc { position: relative; width: 30px; height: 20px; display: inline-flex; align-items: center; border: 1px solid #e0e0e0; border-radius: 3px; }
+    .mc-l { position: absolute; left: 3px; width: 12px; height: 12px; border-radius: 50%; background: #eb001b; top: 50%; transform: translateY(-50%); }
+    .mc-r { position: absolute; right: 3px; width: 12px; height: 12px; border-radius: 50%; background: #f79e1b; top: 50%; transform: translateY(-50%); }
+    .badge-more { font-size: 10px; color: #757575; background: #f5f5f5; border-radius: 3px; padding: 2px 5px; }
+    .bank-mat { color: #616161; font-size: 22px; }
+    .mf { position: relative; width: 100%; }
+    .mf input, .mf select { width: 100%; padding: 16.5px 14px; font-size: 16px; font-family: var(--font); line-height: 1.5; color: var(--text-primary); border: 1px solid var(--border-input); border-radius: var(--radius-btn); outline: none; background: var(--white); appearance: none; transition: border 0.15s; }
+    .mf input:focus, .mf select:focus { border: 2px solid var(--primary); padding: 15.5px 13px; }
+    .mf label { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--text-secondary); pointer-events: none; transition: all 0.15s; background: var(--white); padding: 0 4px; line-height: 1; }
+    .mf input:focus + label, .mf input:not(:placeholder-shown) + label, .mf select:focus + label, .mf select.has-val + label { top: 0; font-size: 12px; color: var(--primary); transform: none; }
+    .mf input.err { border: 2px solid var(--error); padding: 15.5px 13px; }
+    .mf input.err + label, .mf select.err + label { color: var(--error); }
+    .mf .ferr { font-size: 12px; color: var(--error); margin-top: 4px; display: none; letter-spacing: 0.4px; line-height: 1.5; padding: 0; vertical-align: baseline; }
+    .mf .ferr.show { display: block; }
+    .sel-wrap { position: relative; }
+    .sel-wrap::after { content: '▾'; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 13px; pointer-events: none; }
+    .frow { display: flex; gap: 16px; }
+    .frow .mf { flex: 1; }
+    .sum-top { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--divider); margin-bottom: 12px; }
+    .sum-due-label { font-size: 14px; color: var(--text-secondary); }
+    .sum-due-amount { font-size: 20px; font-weight: 700; color: var(--text-primary); }
+    .sum-row { display: flex; justify-content: space-between; padding: 3px 0; }
+    .sum-rlabel { font-size: 12px; color: var(--text-label); }
+    .sum-rvalue { font-size: 14px; color: var(--text-primary); }
+    .rev-row { display: flex; justify-content: space-between; padding: 3px 0; }
+    .rev-rlabel { font-size: 12px; color: var(--text-label); }
+    .rev-rvalue { font-size: 14px; color: var(--text-primary); font-weight: 500; }
+    .btn { font-family: var(--font); font-size: 14px; font-weight: 500; letter-spacing: 0.4px; text-transform: uppercase; border-radius: var(--radius-btn); padding: 6px 24px; min-height: 36px; cursor: pointer; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.15s, box-shadow 0.15s; white-space: nowrap; }
+    .btn-c { background: var(--primary); color: #fff; box-shadow: var(--shadow-btn); }
+    .btn-c:hover { background: var(--primary-dark); }
+    .btn-o { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+    .btn-o:hover { background: rgba(9,112,197,0.04); }
+    .btn-fw { width: 100%; }
+    .btn-text { background: none; border: none; color: var(--primary); font-family: var(--font); font-size: 14px; font-weight: 500; cursor: pointer; padding: 8px 0; text-align: center; width: 100%; }
+    .btn-text:hover { text-decoration: underline; }
+    .nav-row { display: flex; justify-content: space-between; align-items: center; }
+    /* success */
+    .success-center { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 28px; }
+    .check-circle { width: 32px; height: 32px; background: var(--success-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .check-circle svg { width: 18px; height: 18px; }
+    .suc-title { font-size: 34px; font-weight: 400; line-height: 1.235; letter-spacing: 0.25px; color: var(--text-primary); }
+    .suc-conf { font-size: 16px; line-height: 1.5; color: var(--text-primary); }
+    .suc-conf strong { font-weight: 700; }
+    .suc-date { font-size: 16px; line-height: 1.5; color: var(--text-secondary); }
+    .pay-det-row { display: flex; justify-content: space-between; padding: 3px 0; }
+    .pay-det-lbl { font-size: 12px; color: var(--text-label); }
+    .pay-det-val { font-size: 14px; color: var(--text-primary); }
+    hr.div { border: none; border-top: 1px solid var(--divider); }
+    /* inner summary block */
+    .inner-block { border: 1px solid var(--border-card); border-radius: var(--radius-card); padding: 20px; margin-bottom: 16px; }
+    .inner-block:last-child { margin-bottom: 0; }
+    .inner-label { font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 6px; }
+    .inner-amount { font-size: 28px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+    .inner-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; }
+    /* next steps */
+    .nxt-label { font-size: 12px; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; color: var(--text-primary); padding: 20px 24px 0; }
+    .nxt-section { padding: 16px 24px; }
+    .nxt-section:not(:last-child) { border-bottom: 1px solid var(--divider); }
+    .nxt-title { font-size: 20px; font-weight: 500; color: var(--text-primary); line-height: 1.6; }
+    .nxt-body { font-size: 14px; color: var(--text-secondary); line-height: 1.43; margin: 4px 0 14px; }
+    /* autopay setup card */
+    .ap-setup-header { background: var(--success-green); color: #fff; padding: 20px 24px 16px; }
+    .ap-setup-header-title { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+    .ap-setup-header-sub { font-size: 14px; opacity: 0.9; }
+    /* enrolled banner */
+    .enrolled-banner { background: var(--success-green); border-radius: var(--radius-card); padding: 20px; margin-bottom: 0; }
+    .enrolled-banner-label { font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.8); margin-bottom: 6px; }
+    .enrolled-banner-title { font-size: 20px; font-weight: 500; color: #fff; margin-bottom: 16px; }
+    .enrolled-row { display: flex; justify-content: space-between; padding: 3px 0; }
+    .enrolled-lbl { font-size: 12px; color: rgba(255,255,255,0.75); }
+    .enrolled-val { font-size: 14px; color: #fff; font-weight: 500; }
+    /* snackbar */
+    .snackbar { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #f0f7f0; color: #1e4d1e; border: 1px solid #a8d5a8; border-radius: 8px; padding: 14px 20px; font-size: 15px; font-weight: 500; font-family: var(--font); box-shadow: 0 2px 8px rgba(0,0,0,0.10); z-index: 9999; transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); white-space: nowrap; display: flex; align-items: center; gap: 12px; min-width: 280px; }
+    .snackbar.show { transform: translateX(-50%) translateY(0); }
+    .snackbar-icon { width: 22px; height: 22px; border: 2px solid #2e7d2e; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .snackbar-icon svg { width: 13px; height: 13px; }
+    .snackbar-text { flex: 1; }
+    .snackbar-close { background: none; border: none; cursor: pointer; color: #1e4d1e; font-size: 18px; line-height: 1; padding: 0 0 0 8px; opacity: 0.7; }
+    .snackbar-close:hover { opacity: 1; }
+    /* tooltip */
+    .acct-tooltip-wrap { position: relative; width: 100%; }
+    .acct-tooltip {
+      display: none; position: absolute; bottom: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%);
+      background: rgba(50,50,50,0.92); color: #fff;
+      font-size: 12px; font-weight: 400; line-height: 1.5;
+      padding: 8px 12px; border-radius: 4px;
+      max-width: 280px; width: max-content;
+      text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      pointer-events: none; z-index: 999;
+    }
+    .acct-tooltip.visible { display: block; }
+  </style>
 </head>
 <body>
-
+ 
 <!-- HEADER -->
 <header class="header">
   <div class="logo">
@@ -22,7 +151,7 @@
     <div class="logo-text"><span class="aqua">Aqua</span><span class="hc">Healthcare</span></div>
   </div>
 </header>
-
+ 
 <!-- ══ SCREEN 1 — PAY AS GUEST ══ -->
 <div class="screen active" id="s-find">
   <div class="col">
@@ -44,27 +173,27 @@
       </div>
       <div class="radio-expanded open" id="find-acct-fields">
         <div class="mf"><input type="text" id="f-acctnum" placeholder=" " /><label>Account number</label><div class="ferr" id="err-f-acctnum">Account number is required.</div></div>
-
+ 
         <!-- Subscriber's date of birth -->
         <p style="font-size:14px;font-weight:400;line-height:1.43;letter-spacing:0.17px;color:rgba(0,0,0,0.87);margin:8px 0 4px 0;">Subscriber's date of birth</p>
         <div class="frow">
           <div class="mf" style="flex:1;">
             <input type="text" id="f-dob-day" placeholder=" " maxlength="2" inputmode="numeric" />
-            <label>Day</label>
+            <label>DD</label>
             <div class="ferr" id="err-f-dob-day">Required.</div>
           </div>
           <div class="mf" style="flex:1;">
             <input type="text" id="f-dob-month" placeholder=" " maxlength="2" inputmode="numeric" />
-            <label>Month</label>
+            <label>MM</label>
             <div class="ferr" id="err-f-dob-month">Required.</div>
           </div>
           <div class="mf" style="flex:1.5;">
             <input type="text" id="f-dob-year" placeholder=" " maxlength="4" inputmode="numeric" />
-            <label>Year</label>
+            <label>YYYY</label>
             <div class="ferr" id="err-f-dob-year">Required.</div>
           </div>
         </div>
-
+ 
         <div class="mf"><input type="text" id="f-zip" placeholder=" " maxlength="5" /><label>Zip code</label><div class="ferr" id="err-f-zip">Zip code is required.</div></div>
       </div>
     </div>
@@ -72,7 +201,27 @@
       <div class="radio-row-header"><div class="r-circle"><div class="r-dot"></div></div><span class="r-label">Find by Social Security Number (SSN)</span></div>
       <div class="radio-expanded" id="find-ssn-fields">
         <div class="mf"><input type="text" id="f-ssn" placeholder=" " maxlength="4" /><label>Last 4 of Social Security Number</label><div class="ferr" id="err-f-ssn">SSN is required.</div></div>
-        <div class="mf"><input type="text" id="f-ssn-dob" placeholder=" " /><label>Date of birth</label><div class="ferr" id="err-f-ssn-dob">Date of birth is required.</div></div>
+ 
+        <!-- Subscriber's date of birth -->
+        <p style="font-size:14px;font-weight:400;line-height:1.43;letter-spacing:0.17px;color:rgba(0,0,0,0.87);margin:8px 0 4px 0;">Subscriber's date of birth</p>
+        <div class="frow">
+          <div class="mf" style="flex:1;">
+            <input type="text" id="f-ssn-dob-day" placeholder=" " maxlength="2" inputmode="numeric" />
+            <label>DD</label>
+            <div class="ferr" id="err-f-ssn-dob-day">Required.</div>
+          </div>
+          <div class="mf" style="flex:1;">
+            <input type="text" id="f-ssn-dob-month" placeholder=" " maxlength="2" inputmode="numeric" />
+            <label>MM</label>
+            <div class="ferr" id="err-f-ssn-dob-month">Required.</div>
+          </div>
+          <div class="mf" style="flex:1.5;">
+            <input type="text" id="f-ssn-dob-year" placeholder=" " maxlength="4" inputmode="numeric" />
+            <label>YYYY</label>
+            <div class="ferr" id="err-f-ssn-dob-year">Required.</div>
+          </div>
+        </div>
+ 
         <div class="mf"><input type="text" id="f-ssn-zip" placeholder=" " maxlength="5" /><label>Zip code</label><div class="ferr" id="err-f-ssn-zip">Zip code is required.</div></div>
       </div>
     </div>
@@ -92,7 +241,7 @@
     </div>
   </div>
 </div>
-
+ 
 <!-- ══ SCREEN 2 — MAKE A PAYMENT ══ -->
 <div class="screen" id="s-payment">
   <div class="col">
@@ -168,7 +317,7 @@
           </div>
           <div class="mf" style="flex:1"><input type="text" id="bank-zip" placeholder=" " maxlength="5" /><label>Zipcode</label><div class="ferr" id="err-bank-zip">Zip code is required.</div></div>
         </div>
-
+ 
         <!-- AutoPay opt-in checkbox -->
         <div style="display:flex;align-items:flex-start;gap:10px;background:#fff;border:1px solid var(--border-card);border-radius:var(--radius-card);padding:14px 16px;margin-top:8px;">
           <input type="checkbox" id="wants-autopay" onchange="S.wantsAutopay = this.checked;" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#0970c5;cursor:pointer;" />
@@ -177,7 +326,7 @@
             <p style="font-size:12px;color:rgba(0,0,0,0.6);line-height:1.5;margin:0;">After this payment, you can review and confirm your AutoPay details</p>
           </label>
         </div>
-
+ 
       </div>
     </div>
     <div class="nav-row">
@@ -186,7 +335,7 @@
     </div>
   </div>
 </div>
-
+ 
 <!-- ══ SCREEN 3 — REVIEW PAYMENT ══ -->
 <div class="screen" id="s-review">
   <div class="col">
@@ -196,26 +345,26 @@
     </div>
     <div class="card">
       <div class="card-body">
-
+ 
         <!-- TOTAL row -->
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
           <span style="font-size:12px;font-weight:400;letter-spacing:1px;text-transform:uppercase;color:#323a41;line-height:2.66;">TOTAL</span>
           <span style="font-size:34px;font-weight:700;letter-spacing:0.25px;color:rgba(0,0,0,0.87);line-height:1.235;" id="rev-amt">$100.00</span>
         </div>
         <hr class="div" style="margin:0 0 20px 0;" />
-
+ 
         <!-- Detail rows -->
         <div class="rev-row"><span class="rev-rlabel">Subscriber</span><span class="rev-rvalue" id="rev-sub">Lily Allen</span></div>
         <div class="rev-row"><span class="rev-rlabel">Account Number</span><span class="rev-rvalue" id="rev-acct">192829918</span></div>
         <div class="rev-row"><span class="rev-rlabel">Payment method</span><span class="rev-rvalue" id="rev-method">Checking ****4242</span></div>
-
+ 
         <!-- Centered EDIT link -->
         <div style="text-align:center;margin-top:20px;">
           <button onclick="goTo('s-payment');clearPayFields();" style="background:none;border:none;cursor:pointer;color:#0970c5;font-size:14px;font-weight:500;font-family:var(--font);letter-spacing:0.4px;display:inline-flex;align-items:center;gap:4px;padding:0;text-transform:uppercase;">
             <span class="material-icons" style="font-size:16px;">edit</span> EDIT
           </button>
         </div>
-
+ 
       </div>
     </div>
     <div class="nav-row">
@@ -224,248 +373,286 @@
     </div>
   </div>
 </div>
-
+ 
 <!-- ══ SCREEN 4 — PAYMENT SUCCESS ══ -->
 <div class="screen" id="s-success">
   <div class="col">
-
+ 
     <!-- CARD 1 — Payment confirmation -->
     <div style="background:#fff;border:1px solid #b0bec5;border-radius:6px;overflow:hidden;border-top:8px solid #388e3c;">
-      <div style="padding:32px;">
-
-        <!-- Header: check + title + conf + date -->
-        <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:32px;">
-          <div style="width:46px;height:46px;background:#388e3c;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      <div style="padding:24px 32px;display:flex;flex-direction:column;gap:20px;">
+ 
+        <!-- Card header: check + heading/date LEFT, amount/label RIGHT -->
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div class="check-circle" style="flex-shrink:0;margin-top:2px;"><svg viewBox="0 0 24 24" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div>
+              <p style="font-size:24px;font-weight:400;line-height:1.333;color:rgba(0,0,0,0.87);margin:0 0 2px 0;">Payment successful</p>
+              <p style="font-size:14px;font-weight:400;line-height:1.43;color:rgba(0,0,0,0.6);margin:0;" id="suc-date">April 2, 2026 at 2:34PM</p>
+            </div>
           </div>
-          <p style="font-size:24px;font-weight:400;line-height:1.333;letter-spacing:0.25px;color:rgba(0,0,0,0.87);margin:0;">Payment Successful</p>
-          <p style="font-size:16px;font-weight:400;line-height:1.5;letter-spacing:0.15px;color:rgba(0,0,0,0.87);margin:0;">Confirmation <strong id="suc-conf-num"># PMF-3928-2938</strong></p>
-          <p style="font-size:16px;font-weight:400;line-height:1.5;letter-spacing:0.15px;color:rgba(0,0,0,0.6);margin:0;" id="suc-date">April 2, 2026 at 2:34PM</p>
+          <div style="text-align:right;flex-shrink:0;">
+            <p style="font-size:34px;font-weight:700;letter-spacing:0.25px;color:rgba(0,0,0,0.87);line-height:1.235;margin:0;" id="suc-amt">$100.00</p>
+            <p style="font-size:12px;font-weight:400;letter-spacing:1px;text-transform:uppercase;color:rgba(0,0,0,0.6);margin:0;">TOTAL</p>
+          </div>
         </div>
-
-        <!-- TOTAL row -->
-        <hr style="border:none;border-top:1px solid rgba(0,0,0,0.12);margin:0 0 24px 0;" />
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-          <span style="font-size:12px;font-weight:400;letter-spacing:1px;text-transform:uppercase;color:#323a41;line-height:2.66;">TOTAL</span>
-          <span style="font-size:34px;font-weight:700;letter-spacing:0.25px;color:rgba(0,0,0,0.87);line-height:1.235;" id="suc-amt">$100.00</span>
-        </div>
-        <hr style="border:none;border-top:1px solid rgba(0,0,0,0.12);margin:0 0 16px 0;" />
-
+ 
         <!-- Detail rows -->
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;">
-          <span style="font-size:12px;color:#323a41;letter-spacing:0.15px;">Subscriber</span>
-          <span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="suc-sub">Lily Allen</span>
+        <div>
+          <hr style="border:none;border-top:1px solid rgba(0,0,0,0.12);margin:0 0 12px 0;" />
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Confirmation</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="suc-conf-num">PMF-3891-2038</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Subscriber</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="suc-sub">Lily Allen</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Account Number</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="suc-acct">192829918</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Payment method</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="suc-method">Checking &#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;7890</span></div>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;">
-          <span style="font-size:12px;color:#323a41;letter-spacing:0.15px;">Account Number</span>
-          <span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="suc-acct">192829918</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;">
-          <span style="font-size:12px;color:#323a41;letter-spacing:0.15px;">Payment method</span>
-          <span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="suc-method">Checking ********7890</span>
-        </div>
-
-        <!-- Email receipt section -->
-        <hr style="border:none;border-top:1px solid rgba(0,0,0,0.12);margin:24px 0;" />
-        <div style="display:flex;flex-direction:column;gap:16px;">
+ 
+        <!-- Email receipt: bold heading + sub + input/button row -->
+        <div style="display:flex;flex-direction:column;gap:10px;">
           <div>
-            <p style="font-size:20px;font-weight:500;line-height:1.6;letter-spacing:0.15px;color:rgba(0,0,0,0.87);margin:0 0 4px 0;">Email your receipt</p>
-            <p style="font-size:14px;font-weight:400;line-height:1.43;letter-spacing:0.17px;color:rgba(0,0,0,0.6);margin:0;">We'll send your payment confirmation to your inbox.</p>
+            <p style="font-size:14px;font-weight:700;line-height:1.43;color:rgba(0,0,0,0.87);margin:0 0 2px 0;">Email your receipt</p>
+            <p style="font-size:14px;font-weight:400;line-height:1.43;color:rgba(0,0,0,0.6);margin:0;">We&#39;ll send your payment confirmation to your inbox.</p>
           </div>
-          <div class="mf">
-            <input type="email" id="receipt-email" placeholder=" " />
-            <label>Enter email</label>
-            <div class="ferr" id="err-receipt">A valid email is required.</div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div class="mf" style="flex:1;margin:0;">
+              <input type="email" id="receipt-email" placeholder=" " />
+              <label>Enter email</label>
+              <div class="ferr" id="err-receipt">A valid email is required.</div>
+            </div>
+            <button onclick="sendReceipt()" style="height:56px;padding:0 16px;background:transparent;border:1px solid #0970c5;border-radius:4px;color:#0970c5;font-family:var(--font);font-size:14px;font-weight:500;letter-spacing:0.4px;text-transform:uppercase;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+              SEND RECEIPT
+            </button>
           </div>
-          <button onclick="sendReceipt()" style="width:100%;height:36px;background:transparent;border:1px solid #0970c5;border-radius:4px;color:#0970c5;font-family:var(--font);font-size:14px;font-weight:500;letter-spacing:0.4px;text-transform:uppercase;cursor:pointer;">
-            SEND RECEIPT
-          </button>
         </div>
-
+ 
       </div>
     </div>
-
-    <!-- CARD 2 — Complete AutoPay Setup (bank users only) -->
-    <div id="suc-autopay-card" style="display:none;background:#fff;border:1px solid #b0bec5;border-radius:6px;overflow:hidden;">
-      <div style="padding:32px;">
-
-        <!-- Centered header -->
-        <div style="text-align:center;margin-bottom:32px;">
-          <p style="font-size:24px;font-weight:400;line-height:1.333;letter-spacing:0.25px;color:rgba(0,0,0,0.87);margin:0 0 8px 0;">Complete AutoPay Setup</p>
-          <p style="font-size:16px;font-weight:400;line-height:1.5;letter-spacing:0.15px;color:rgba(0,0,0,0.87);margin:0;">Have your payment withdrawn automatically each month</p>
+ 
+    <!-- CARD 2 — Complete AutoPay Setup (bank + wantsAutopay only) -->
+    <div id="suc-autopay-card" style="display:none;background:#fff;border:1px solid #b0bec5;border-radius:6px;overflow:hidden;border-top:8px solid #0970c5;">
+      <div style="padding:24px 32px;display:flex;flex-direction:column;gap:20px;">
+ 
+        <!-- Header: no check circle -->
+        <div>
+          <p style="font-size:24px;font-weight:400;line-height:1.333;color:rgba(0,0,0,0.87);margin:0 0 4px 0;">Complete AutoPay Setup</p>
+          <p style="font-size:14px;font-weight:400;line-height:1.43;color:rgba(0,0,0,0.6);margin:0;">Have your payment withdrawn automatically each month.</p>
         </div>
-
-        <!-- Summary heading -->
-        <p style="font-size:20px;font-weight:700;line-height:1.6;letter-spacing:0.15px;color:rgba(0,0,0,0.87);margin:0 0 16px 0;">Summary</p>
-
-        <!-- Summary rows -->
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.12);">
-          <span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Estimated monthly premium</span>
-          <span style="display:flex;align-items:center;gap:6px;font-size:20px;font-weight:700;color:rgba(0,0,0,0.87);" id="ap-sum-premium">$127.50
-            <span style="position:relative;display:inline-flex;align-items:center;">
-              <span class="material-icons" style="font-size:18px;color:#0970c5;cursor:default;"
-                data-tooltip="Amount may vary if your plan changes or a partial payment is made. You'll be notified of any updates."
-                onmouseenter="showHoverTooltip(event,this.dataset.tooltip)"
-                onmouseleave="hideHoverTooltip()"
-                onmousemove="moveHoverTooltip(event)">help_outline</span>
+ 
+        <!-- Summary rows with dividers between each -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(0,0,0,0.12);">
+            <span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Estimated monthly premium</span>
+            <span style="display:flex;align-items:center;gap:6px;font-size:20px;font-weight:700;color:rgba(0,0,0,0.87);" id="ap-sum-premium">$127.50
+              <span style="position:relative;display:inline-flex;align-items:center;">
+                <span class="material-icons" style="font-size:18px;color:#0970c5;cursor:default;"
+                  data-tooltip="Amount may vary if your plan changes or a partial payment is made. You&#39;ll be notified of any updates."
+                  onmouseenter="showHoverTooltip(event,this.dataset.tooltip)"
+                  onmouseleave="hideHoverTooltip()"
+                  onmousemove="moveHoverTooltip(event)">help_outline</span>
+              </span>
             </span>
-          </span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(0,0,0,0.12);">
+            <span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Pay to</span>
+            <span style="font-size:20px;font-weight:700;color:rgba(0,0,0,0.87);">Aqua Health</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(0,0,0,0.12);">
+            <span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Payment method</span>
+            <span style="font-size:20px;font-weight:700;color:rgba(0,0,0,0.87);" id="ap-sum-method">Checking &#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;7890</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(0,0,0,0.12);">
+            <span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Payment date</span>
+            <span style="font-size:20px;font-weight:700;color:rgba(0,0,0,0.87);" id="ap-sum-paydate">&#8212;</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;">
+            <span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">First scheduled payment</span>
+            <span style="font-size:20px;font-weight:700;color:rgba(0,0,0,0.87);" id="ap-sum-firstpay">&#8212;</span>
+          </div>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.12);">
-          <span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Pay to</span>
-          <span style="font-size:20px;font-weight:400;color:rgba(0,0,0,0.87);">Avera</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.12);">
-          <span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Payment method</span>
-          <span style="font-size:16px;font-weight:700;color:rgba(0,0,0,0.87);" id="ap-sum-method">Checking ********7890</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.12);">
-          <span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Payment date</span>
-          <span style="font-size:16px;font-weight:700;color:rgba(0,0,0,0.87);" id="ap-sum-paydate">—</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;margin-bottom:24px;">
-          <span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">First scheduled payment</span>
-          <span style="font-size:16px;font-weight:700;color:rgba(0,0,0,0.87);" id="ap-sum-firstpay">—</span>
-        </div>
-
+ 
         <!-- Payment Date dropdown -->
-        <div class="mf sel-wrap" style="margin-bottom:16px;">
-          <select id="ap-pay-day" onchange="updateFirstPayDate()">
-            <option value="" disabled selected>Select day</option>
-          </select>
+        <div class="mf sel-wrap">
+          <select id="ap-pay-day" onchange="updateFirstPayDate()"><option value="" disabled selected>Select day</option></select>
           <label>Payment Date</label>
           <div class="ferr" id="err-ap-pay-day">Please select a payment date.</div>
         </div>
-
+ 
         <!-- Email optional -->
-        <div class="mf" style="margin-bottom:16px;">
+        <div class="mf">
           <input type="email" id="ap-email" placeholder=" " />
           <label>Email (optional)</label>
         </div>
-
-        <!-- ACH checkbox + legal -->
-        <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:24px;">
+ 
+        <!-- Checkbox + legal -->
+        <div style="display:flex;align-items:flex-start;gap:10px;">
           <input type="checkbox" id="ap-auth-check" style="margin-top:3px;flex-shrink:0;width:16px;height:16px;accent-color:#0970c5;cursor:pointer;" />
-          <label for="ap-auth-check" style="font-size:12px;color:rgba(0,0,0,0.6);line-height:1.5;letter-spacing:0.4px;cursor:pointer;">
-          I agree to the autopay draft date and amount. Payment will be automatically withdrawn from your account on the scheduled date. You can cancel anytime.
+          <label for="ap-auth-check" style="font-size:12px;color:rgba(0,0,0,0.6);line-height:1.5;cursor:pointer;">
+            I agree to the autopay draft date and amount. Payment will be automatically withdrawn from your account on the scheduled date. You can cancel anytime.
           </label>
         </div>
-
-        <!-- SETUP AUTOPAY button -->
-        <button onclick="confirmAutopay()" style="width:100%;height:36px;background:#0970c5;border:none;border-radius:4px;color:#fff;font-family:var(--font);font-size:14px;font-weight:500;letter-spacing:0.4px;text-transform:uppercase;cursor:pointer;box-shadow:0px 1px 5px rgba(0,0,0,0.12),0px 2px 2px rgba(0,0,0,0.14),0px 3px 1px -2px rgba(0,0,0,0.20);display:flex;align-items:center;justify-content:center;gap:6px;">
+ 
+        <!-- SETUP AUTOPAY -->
+        <button onclick="confirmAutopay()" style="width:100%;height:44px;background:#0970c5;border:none;border-radius:4px;color:#fff;font-family:var(--font);font-size:14px;font-weight:500;letter-spacing:0.4px;text-transform:uppercase;cursor:pointer;box-shadow:0px 1px 5px rgba(0,0,0,0.12),0px 2px 2px rgba(0,0,0,0.14),0px 3px 1px -2px rgba(0,0,0,0.20);display:flex;align-items:center;justify-content:center;gap:6px;">
           SETUP AUTOPAY <span class="material-icons" style="font-size:16px;">chevron_right</span>
         </button>
-
+ 
       </div>
     </div>
-
-    <!-- CARD 3 — Next steps -->
-    <div style="background:#fff;border:1px solid #b0bec5;border-radius:6px;overflow:hidden;" id="suc-next-card">
-      <div style="padding:20px 32px 0 32px;">
-        <p style="font-size:12px;font-weight:400;letter-spacing:1px;text-transform:uppercase;line-height:2.66;color:rgba(0,0,0,0.87);">NEXT STEPS</p>
-      </div>
-      <div style="padding:16px 32px 24px 32px;">
-        <p style="font-size:20px;font-weight:500;line-height:1.6;letter-spacing:0.15px;color:rgba(0,0,0,0.87);margin:0 0 4px 0;">Create an account</p>
-        <p style="font-size:14px;font-weight:400;line-height:1.43;letter-spacing:0.17px;color:rgba(0,0,0,0.6);margin:0 0 14px 0;" id="suc-next-body">Save your info to pay faster, manage invoices, and go paperless.</p>
-        <div class="acct-tooltip-wrap">
-          <div class="acct-tooltip" id="tooltip-suc">When the member clicks on this button, they will be re-directed to the provider's login screen.</div>
-          <button onclick="showTooltip('tooltip-suc', event)" style="width:100%;height:36px;background:transparent;border:1px solid #0970c5;border-radius:4px;color:#0970c5;font-family:var(--font);font-size:14px;font-weight:500;letter-spacing:0.4px;text-transform:uppercase;cursor:pointer;">
-            CREATE AN ACCOUNT
-          </button>
+ 
+    <!-- CARD 3 — Create an account -->
+    <div style="background:#fff;border:1px solid #b0bec5;border-radius:6px;overflow:hidden;">
+      <div style="padding:24px 32px;display:flex;flex-direction:column;gap:16px;">
+        <div>
+          <p style="font-size:24px;font-weight:400;line-height:1.333;color:rgba(0,0,0,0.87);margin:0 0 6px 0;">Create an account</p>
+          <p style="font-size:14px;font-weight:400;line-height:1.43;color:rgba(0,0,0,0.6);margin:0;" id="suc-next-body">Sign in to manage AutoPay, download invoices, and sign up for paperless billing.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="acct-tooltip-wrap">
+            <div class="acct-tooltip" id="tooltip-suc">When the member clicks on this button, they will be re-directed to the provider&#39;s login screen.</div>
+            <button onclick="showTooltip('tooltip-suc', event)" style="width:100%;height:44px;background:#0970c5;border:none;border-radius:4px;color:#fff;font-family:var(--font);font-size:14px;font-weight:500;letter-spacing:0.4px;text-transform:uppercase;cursor:pointer;box-shadow:0px 1px 5px rgba(0,0,0,0.12),0px 2px 2px rgba(0,0,0,0.14),0px 3px 1px -2px rgba(0,0,0,0.20);">
+              CREATE AN ACCOUNT
+            </button>
+          </div>
+          <div class="acct-tooltip-wrap">
+            <div class="acct-tooltip" id="tooltip-signin-suc">When the member clicks on this button, they will be re-directed to the provider&#39;s login screen.</div>
+            <button onclick="showTooltip('tooltip-signin-suc', event)" style="width:100%;height:44px;background:transparent;border:1px solid #0970c5;border-radius:4px;color:#0970c5;font-family:var(--font);font-size:14px;font-weight:500;letter-spacing:0.4px;text-transform:uppercase;cursor:pointer;">
+              SIGN IN
+            </button>
+          </div>
         </div>
       </div>
     </div>
-
+ 
   </div>
 </div>
-
+ 
 <!-- ══ SCREEN 5 — ENROLLED IN AUTOPAY ══ -->
 <div class="screen" id="s-enrolled">
   <div class="col">
-
-    <!-- CARD 1 — Payment successful -->
+ 
+    <!-- CARD 1 — Payment successful (collapsible) -->
     <div style="background:#fff;border:1px solid #b0bec5;border-radius:6px;overflow:hidden;border-top:8px solid #388e3c;">
-      <div style="padding:32px;display:flex;flex-direction:column;gap:32px;">
-
-        <!-- Header -->
-        <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;">
-          <div style="width:46px;height:47px;background:#388e3c;border-radius:50%;display:flex;align-items:center;justify-content:center;">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      <div style="padding:24px 32px;">
+ 
+        <!-- Always-visible summary — exact same styling as s-success Card 1 -->
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div class="check-circle" style="flex-shrink:0;margin-top:2px;"><svg viewBox="0 0 24 24" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div>
+              <p style="font-size:24px;font-weight:400;line-height:1.333;color:rgba(0,0,0,0.87);margin:0 0 2px 0;">Payment successful</p>
+              <p style="font-size:14px;font-weight:400;line-height:1.43;color:rgba(0,0,0,0.6);margin:0;" id="enr-date">April 2, 2026 at 2:34PM</p>
+            </div>
           </div>
-          <p style="font-size:24px;font-weight:400;line-height:1.333;letter-spacing:0;color:rgba(0,0,0,0.87);margin:0;">Payment successful</p>
-          <p style="font-size:16px;font-weight:400;line-height:1.5;letter-spacing:0.15px;color:rgba(0,0,0,0.87);margin:0;">Confirmation <strong id="enr-conf-num"># PMF-3928-2938</strong></p>
-          <p style="font-size:16px;font-weight:400;line-height:1.5;letter-spacing:0.15px;color:rgba(0,0,0,0.6);margin:0;" id="enr-date">April 2, 2026 at 2:34PM</p>
-        </div>
-
-        <!-- Payment total inner block -->
-        <div style="border:1px solid #b0bec5;border-radius:6px;padding:20px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-            <span style="font-size:12px;font-weight:400;letter-spacing:1px;text-transform:uppercase;color:#323a41;line-height:2.66;">TOTAL</span>
-            <span style="font-size:34px;font-weight:700;letter-spacing:0.25px;color:rgba(0,0,0,0.87);line-height:1.235;" id="enr-amt">$100.00</span>
+          <div style="text-align:right;flex-shrink:0;">
+            <p style="font-size:34px;font-weight:700;letter-spacing:0.25px;color:rgba(0,0,0,0.87);line-height:1.235;margin:0;" id="enr-amt">$100.00</p>
+            <p style="font-size:12px;font-weight:400;letter-spacing:1px;text-transform:uppercase;color:rgba(0,0,0,0.6);margin:0;">TOTAL</p>
           </div>
-          <hr style="border:none;border-top:1px solid rgba(0,0,0,0.12);margin:0 0 12px 0;" />
-          <div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="font-size:12px;color:#323a41;letter-spacing:0.15px;line-height:12px;">Subscriber</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;line-height:1.43;" id="enr-sub">Lily Allen</span></div>
-          <div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="font-size:12px;color:#323a41;letter-spacing:0.15px;line-height:12px;">Account Number</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;line-height:1.43;" id="enr-acct">192829918</span></div>
-          <div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="font-size:12px;color:#323a41;letter-spacing:0.15px;line-height:12px;">Payment method</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;line-height:1.43;" id="enr-method">Checking ********7890</span></div>
         </div>
-
+ 
+        <!-- Divider -->
+        <hr style="border:none;border-top:1px solid rgba(0,0,0,0.12);margin:16px 0 0 0;" />
+ 
+        <!-- View/Hide details toggle row -->
+        <button onclick="(function(){
+          var d=document.getElementById('enr-card1-details');
+          var l=document.getElementById('enr-toggle-label');
+          var i=document.getElementById('enr-toggle-icon');
+          var expanded = d.style.display!=='none';
+          d.style.display = expanded ? 'none' : 'block';
+          l.textContent = expanded ? 'View details' : 'Hide details';
+          i.textContent = expanded ? 'expand_more' : 'expand_less';
+        })()" style="width:100%;display:flex;justify-content:space-between;align-items:center;background:none;border:none;padding:12px 0 0 0;cursor:pointer;font-family:var(--font);">
+          <span id="enr-toggle-label" style="font-size:14px;font-weight:400;color:#0970c5;">View details</span>
+          <span id="enr-toggle-icon" class="material-icons" style="font-size:20px;color:rgba(0,0,0,0.54);">expand_more</span>
+        </button>
+ 
+        <!-- Expandable detail content — hidden by default -->
+        <div id="enr-card1-details" style="display:none;">
+          <hr style="border:none;border-top:1px solid rgba(0,0,0,0.12);margin:12px 0;" />
+          <div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Confirmation</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="enr-conf-num">PMF-3928-2938</span></div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Subscriber</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="enr-sub">Lily Allen</span></div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Account</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="enr-acct">192829918</span></div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;align-items:center;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Payment</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;display:flex;align-items:center;gap:6px;"><span class="material-icons" style="font-size:16px;color:rgba(0,0,0,0.4);">credit_card</span><span id="enr-method">Checking ···7890</span></span></div>
+ 
+          <!-- Email receipt -->
+          <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px;">
+            <div>
+              <p style="font-size:14px;font-weight:700;line-height:1.43;color:rgba(0,0,0,0.87);margin:0 0 2px 0;">Email your receipt</p>
+              <p style="font-size:14px;font-weight:400;line-height:1.43;color:rgba(0,0,0,0.6);margin:0;">We'll send your payment confirmation to your inbox.</p>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <div class="mf" style="flex:1;margin:0;">
+                <input type="email" id="enr-receipt-email" placeholder=" " />
+                <label>Enter email</label>
+              </div>
+              <button onclick="sendReceipt()" style="height:56px;padding:0 16px;background:transparent;border:1px solid #0970c5;border-radius:4px;color:#0970c5;font-family:var(--font);font-size:14px;font-weight:500;letter-spacing:0.4px;text-transform:uppercase;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                SEND RECEIPT
+              </button>
+            </div>
+          </div>
+        </div>
+ 
       </div>
     </div>
-
+ 
     <!-- CARD 2 — Enrolled in AutoPay -->
     <div style="background:#fff;border:1px solid #b0bec5;border-radius:6px;overflow:hidden;border-top:8px solid #388e3c;">
-      <div style="padding:32px;display:flex;flex-direction:column;gap:32px;">
-
-        <!-- Header -->
-        <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;">
-          <div style="width:46px;height:47px;background:#388e3c;border-radius:50%;display:flex;align-items:center;justify-content:center;">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      <div style="padding:24px 32px;display:flex;flex-direction:column;gap:20px;">
+ 
+        <!-- Card header: check + heading/date LEFT, amount/label RIGHT -->
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div class="check-circle" style="flex-shrink:0;margin-top:2px;"><svg viewBox="0 0 24 24" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div>
+              <p style="font-size:24px;font-weight:400;line-height:1.333;color:rgba(0,0,0,0.87);margin:0 0 2px 0;">Enrolled in AutoPay</p>
+              <p style="font-size:14px;font-weight:400;line-height:1.43;color:rgba(0,0,0,0.6);margin:0;" id="enr-date2">April 2, 2026 at 2:34PM</p>
+            </div>
           </div>
-          <p style="font-size:24px;font-weight:400;line-height:1.333;letter-spacing:0;color:rgba(0,0,0,0.87);margin:0;">Enrolled in AutoPay</p>
+          <div style="text-align:right;flex-shrink:0;">
+            <p style="font-size:34px;font-weight:700;letter-spacing:0.25px;color:rgba(0,0,0,0.87);line-height:1.235;margin:0;" id="enr-amt-ap">127.50</p>
+            <p style="font-size:12px;font-weight:400;letter-spacing:1px;text-transform:uppercase;color:rgba(0,0,0,0.6);margin:0;">ESTIMATED MONTHLY TOTAL</p>
+          </div>
         </div>
-
-        <!-- AutoPay summary inner block -->
-        <div style="border:1px solid #b0bec5;border-radius:6px;padding:20px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-            <span style="font-size:12px;font-weight:400;letter-spacing:1px;text-transform:uppercase;color:#323a41;line-height:2.66;">ESTIMATED MONTHLY PAYMENT</span>
-            <span style="font-size:34px;font-weight:700;letter-spacing:0.25px;color:rgba(0,0,0,0.87);line-height:1.235;">$127.50</span>
-          </div>
+ 
+        <!-- Detail rows -->
+        <div>
           <hr style="border:none;border-top:1px solid rgba(0,0,0,0.12);margin:0 0 12px 0;" />
-          <div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="font-size:12px;color:#323a41;letter-spacing:0.15px;line-height:12px;">Pay to</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;line-height:1.43;">Aqua Healthcare</span></div>
-          <div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="font-size:12px;color:#323a41;letter-spacing:0.15px;line-height:12px;">Payment method</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;line-height:1.43;" id="enr-ap-method">Checking ****4242</span></div>
-          <div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="font-size:12px;color:#323a41;letter-spacing:0.15px;line-height:12px;">Payment date</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;line-height:1.43;" id="enr-ap-paydate">—</span></div>
-          <div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="font-size:12px;color:#323a41;letter-spacing:0.15px;line-height:12px;">First scheduled payment</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;line-height:1.43;" id="enr-ap-nextpay">5/15/2026</span></div>
-          <div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="font-size:12px;color:#323a41;letter-spacing:0.15px;line-height:12px;">Email</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;line-height:1.43;" id="enr-ap-email">—</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Pay to</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;">Aqua Healthcare</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Payment method</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="enr-ap-method">Checking ****4242</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Payment date</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="enr-ap-paydate">15th of each month</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">First scheduled payment</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="enr-ap-nextpay">5/15/2026</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Email</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="enr-ap-email">&#8212;</span></div>
         </div>
-
-        <!-- Cancel AutoPay link -->
-        <div style="text-align:center;">
-          <button onclick="goTo('s-success')" style="background:none;border:none;color:#0970c5;font-family:var(--font);font-size:14px;font-weight:400;letter-spacing:0.15px;cursor:pointer;text-decoration:none;">Cancel AutoPay</button>
-        </div>
-
+ 
       </div>
     </div>
-
-    <!-- CARD 3 — Next steps -->
+ 
+    <!-- CARD 3 — Create an account -->
     <div style="background:#fff;border:1px solid #b0bec5;border-radius:6px;overflow:hidden;">
-      <div style="padding:20px 32px 0 32px;">
-        <p style="font-size:12px;font-weight:400;letter-spacing:1px;text-transform:uppercase;line-height:2.66;color:#000;">NEXT STEPS</p>
-      </div>
-      <div style="padding:12px 32px 24px 32px;">
-        <p style="font-size:20px;font-weight:500;line-height:1.6;letter-spacing:0.15px;color:rgba(0,0,0,0.87);margin:0 0 4px 0;">Create an account</p>
-        <p style="font-size:14px;font-weight:400;line-height:1.43;letter-spacing:0.17px;color:rgba(0,0,0,0.6);margin:0 0 14px 0;">View payment history, manage AutoPay, and go paperless.</p>
-        <div class="acct-tooltip-wrap">
-          <div class="acct-tooltip" id="tooltip-enr">When the member clicks on this button, they will be re-directed to the provider's login screen.</div>
-          <button onclick="showTooltip('tooltip-enr', event)" style="width:100%;height:36px;background:transparent;border:1px solid #0970c5;border-radius:4px;color:#0970c5;font-family:var(--font);font-size:14px;font-weight:500;letter-spacing:0.4px;text-transform:uppercase;cursor:pointer;">
-            CREATE AN ACCOUNT
-          </button>
+      <div style="padding:24px 32px;display:flex;flex-direction:column;gap:16px;">
+        <div>
+          <p style="font-size:24px;font-weight:400;line-height:1.333;color:rgba(0,0,0,0.87);margin:0 0 6px 0;">Create an account</p>
+          <p style="font-size:14px;font-weight:400;line-height:1.43;color:rgba(0,0,0,0.6);margin:0;">Sign in to manage AutoPay, download invoices, and sign up for paperless billing.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="acct-tooltip-wrap">
+            <div class="acct-tooltip" id="tooltip-enr">When the member clicks on this button, they will be re-directed to the provider&#39;s login screen.</div>
+            <button onclick="showTooltip('tooltip-enr', event)" style="width:100%;height:44px;background:#0970c5;border:none;border-radius:4px;color:#fff;font-family:var(--font);font-size:14px;font-weight:500;letter-spacing:0.4px;text-transform:uppercase;cursor:pointer;box-shadow:0px 1px 5px rgba(0,0,0,0.12),0px 2px 2px rgba(0,0,0,0.14),0px 3px 1px -2px rgba(0,0,0,0.20);">
+              CREATE AN ACCOUNT
+            </button>
+          </div>
+          <div class="acct-tooltip-wrap">
+            <div class="acct-tooltip" id="tooltip-signin-enr">When the member clicks on this button, they will be re-directed to the provider&#39;s login screen.</div>
+            <button onclick="showTooltip('tooltip-signin-enr', event)" style="width:100%;height:44px;background:transparent;border:1px solid #0970c5;border-radius:4px;color:#0970c5;font-family:var(--font);font-size:14px;font-weight:500;letter-spacing:0.4px;text-transform:uppercase;cursor:pointer;">
+              SIGN IN
+            </button>
+          </div>
         </div>
       </div>
     </div>
-
+ 
   </div>
 </div>
-
+ 
 <!-- ══ SCREEN 6 — CREATE ACCOUNT ══ -->
 <div class="screen" id="s-account">
   <div class="col">
@@ -490,16 +677,370 @@
     </div>
   </div>
 </div>
-
+ 
 <!-- Global hover tooltip — fixed position, always on top -->
 <div id="hover-tooltip" style="display:none;position:fixed;background:rgba(50,50,50,0.92);color:#fff;font-size:12px;font-weight:400;line-height:1.5;padding:8px 12px;border-radius:4px;max-width:260px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.2);pointer-events:none;z-index:99999;white-space:normal;transform:translateX(-50%) translateY(-100%) translateY(-8px);"></div>
-
+ 
 <!-- SNACKBAR -->
 <div class="snackbar" id="snackbar">
   <div class="snackbar-icon"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7L5.5 10.5L12 3.5" stroke="#2e7d2e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
   <span class="snackbar-text">Receipt sent</span>
   <button class="snackbar-close" onclick="document.getElementById('snackbar').classList.remove('show')">&#x2715;</button>
 </div>
-<script src="main.js"></script>
+ 
+<script>
+const S = {
+  findMethod: 'acct', subscriber: 'Lily Allen', acctNum: '192829918',
+  amtMethod: 'total', payMethod: 'card', amount: '$127.50', methodLbl: 'Debit or Credit Card',
+  bankAcctNum: '', bankAcctType: '',
+  wantsAutopay: false,
+  ap: { payDay: '', firstPayDate: '', payDateLabel: '' },
+  _successDate: '',
+};
+ 
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+ 
+function showTooltip(id, e) {
+  e.stopPropagation();
+  // Hide any other open tooltips first
+  document.querySelectorAll('.acct-tooltip').forEach(t => t.classList.remove('visible'));
+  document.getElementById(id).classList.add('visible');
+}
+ 
+function showHoverTooltip(e, text) {
+  const tip = document.getElementById('hover-tooltip');
+  tip.textContent = text;
+  tip.style.display = 'block';
+  tip.style.left = e.clientX + 'px';
+  tip.style.top  = e.clientY + 'px';
+}
+function hideHoverTooltip() {
+  document.getElementById('hover-tooltip').style.display = 'none';
+}
+function moveHoverTooltip(e) {
+  const tip = document.getElementById('hover-tooltip');
+  tip.style.left = e.clientX + 'px';
+  tip.style.top  = e.clientY + 'px';
+}
+ 
+document.addEventListener('click', function() {
+  document.querySelectorAll('.acct-tooltip').forEach(t => t.classList.remove('visible'));
+});
+ 
+function selectFind(m) {
+  S.findMethod = m;
+  ['acct','ssn'].forEach(k => {
+    document.getElementById('find-'+k+'-row').classList.toggle('selected', k === m);
+    document.getElementById('find-'+k+'-fields').classList.toggle('open', k === m);
+  });
+}
+ 
+function selectAmount(m) {
+  S.amtMethod = m;
+  document.getElementById('amt-total-row').classList.toggle('selected', m === 'total');
+  document.getElementById('amt-custom-row').classList.toggle('selected', m === 'custom');
+  document.getElementById('amt-custom-fields').classList.toggle('open', m === 'custom');
+  if (m === 'total') { S.amount = '$127.50'; }
+  else { setTimeout(() => document.getElementById('custom-amt').focus(), 50); }
+}
+ 
+function selectPayMethod(m) {
+  S.payMethod = m;
+  document.getElementById('pay-card-row').classList.toggle('selected', m === 'card');
+  document.getElementById('pay-bank-row').classList.toggle('selected', m === 'bank');
+  document.getElementById('card-fields').classList.toggle('open', m === 'card');
+  document.getElementById('bank-fields').classList.toggle('open', m === 'bank');
+}
+ 
+function clearPayFields() {
+  ['card-num','card-exp','card-cvv','card-name','bank-acct-num','confirm-acct',
+   'routing-num','confirm-routing','bank-addr1','bank-addr2','bank-city','bank-zip'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = ''; el.classList.remove('err'); }
+    const er = document.getElementById('err-'+id);
+    if (er) er.classList.remove('show');
+  });
+  ['bank-type','bank-state'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = ''; el.classList.remove('has-val','err'); }
+  });
+  // Reset autopay checkbox
+  S.wantsAutopay = false;
+  const cb = document.getElementById('wants-autopay');
+  if (cb) cb.checked = false;
+}
+ 
+function vReq(inputId, errId) {
+  const el = document.getElementById(inputId), er = document.getElementById(errId);
+  const bad = !el || !el.value.trim();
+  if (el) el.classList.toggle('err', bad);
+  if (er) er.classList.toggle('show', bad);
+  return !bad;
+}
+function vMatch(id1, id2, errId) {
+  const v1 = document.getElementById(id1).value, el2 = document.getElementById(id2), er = document.getElementById(errId);
+  const bad = !el2.value.trim() || v1 !== el2.value;
+  el2.classList.toggle('err', bad);
+  if (er) er.classList.toggle('show', bad);
+  return !bad;
+}
+function vSel(selId, errId) {
+  const el = document.getElementById(selId), er = document.getElementById(errId);
+  const bad = !el.value;
+  el.classList.toggle('err', bad);
+  if (er) er.classList.toggle('show', bad);
+  return !bad;
+}
+ 
+function submitFind() {
+  let ok = true;
+  if (S.findMethod === 'acct') {
+    if (!vReq('f-acctnum','err-f-acctnum')) ok = false;
+    if (!vReq('f-dob-day','err-f-dob-day')) ok = false;
+    if (!vReq('f-dob-month','err-f-dob-month')) ok = false;
+    if (!vReq('f-dob-year','err-f-dob-year')) ok = false;
+    if (!vReq('f-zip','err-f-zip')) ok = false;
+  } else {
+    if (!vReq('f-ssn','err-f-ssn')) ok = false;
+    if (!vReq('f-ssn-dob-day','err-f-ssn-dob-day')) ok = false;
+    if (!vReq('f-ssn-dob-month','err-f-ssn-dob-month')) ok = false;
+    if (!vReq('f-ssn-dob-year','err-f-ssn-dob-year')) ok = false;
+    if (!vReq('f-ssn-zip','err-f-ssn-zip')) ok = false;
+  }
+  if (!ok) return;
+ 
+  if (S.findMethod === 'acct') {
+    S.acctNum = document.getElementById('f-acctnum').value.trim();
+  }
+ 
+  document.getElementById('pay-subscriber').textContent = S.subscriber;
+  document.getElementById('pay-acctnum').textContent = S.acctNum;
+  goTo('s-payment');
+}
+ 
+function submitPayment() {
+  let ok = true;
+  if (S.amtMethod === 'custom') {
+    const ca = document.getElementById('custom-amt');
+    if (!ca.value.trim()) { ca.classList.add('err'); document.getElementById('err-custom-amt').classList.add('show'); ok = false; }
+    else { ca.classList.remove('err'); document.getElementById('err-custom-amt').classList.remove('show'); S.amount = ca.value.startsWith('$') ? ca.value : '$'+ca.value; }
+  } else { S.amount = '$127.50'; }
+ 
+  if (S.payMethod === 'card') {
+    if (!vReq('card-num','err-card-num')) ok = false;
+    if (!vReq('card-exp','err-card-exp')) ok = false;
+    if (!vReq('card-cvv','err-card-cvv')) ok = false;
+    if (!vReq('card-name','err-card-name')) ok = false;
+    if (ok) S.methodLbl = 'Visa ****' + (document.getElementById('card-num').value.replace(/\s/g,'').slice(-4) || '4242');
+  } else {
+    if (!vSel('bank-type','err-bank-type')) ok = false;
+    if (!vReq('bank-acct-num','err-bank-acct-num')) ok = false;
+    if (!vMatch('bank-acct-num','confirm-acct','err-confirm-acct')) ok = false;
+    if (!vReq('routing-num','err-routing-num')) ok = false;
+    if (!vMatch('routing-num','confirm-routing','err-confirm-routing')) ok = false;
+    if (!vReq('bank-addr1','err-bank-addr1')) ok = false;
+    if (!vReq('bank-city','err-bank-city')) ok = false;
+    if (!vSel('bank-state','err-bank-state')) ok = false;
+    if (!vReq('bank-zip','err-bank-zip')) ok = false;
+    if (ok) {
+      S.bankAcctNum  = document.getElementById('bank-acct-num').value;
+      S.bankAcctType = document.getElementById('bank-type').value;
+      S.methodLbl    = S.bankAcctType + ' ****' + S.bankAcctNum.slice(-4);
+    }
+  }
+  if (!ok) return;
+ 
+  document.getElementById('rev-amt').textContent    = S.amount;
+  document.getElementById('rev-sub').textContent    = S.subscriber;
+  document.getElementById('rev-acct').textContent   = S.acctNum;
+  document.getElementById('rev-method').textContent = S.methodLbl;
+  goTo('s-review');
+}
+ 
+function submitReview() {
+  const now = new Date();
+  S._successDate = now.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) + ' at ' + now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+ 
+  document.getElementById('suc-date').textContent  = S._successDate;
+  document.getElementById('suc-amt').textContent   = S.amount;
+  document.getElementById('suc-sub').textContent   = S.subscriber;
+  document.getElementById('suc-acct').textContent  = S.acctNum;
+ 
+  const isBank = S.payMethod === 'bank';
+ 
+  // Payment method display — full masking for bank as shown in design
+  if (isBank) {
+    const masked = S.bankAcctType + ' ********' + S.bankAcctNum.slice(-4);
+    document.getElementById('suc-method').textContent    = masked;
+    document.getElementById('ap-sum-method').textContent = masked;
+  } else {
+    document.getElementById('suc-method').textContent = S.methodLbl;
+  }
+ 
+  // Show AutoPay setup card only for bank users who opted in
+  const showAutopay = isBank && S.wantsAutopay;
+  document.getElementById('suc-autopay-card').style.display = showAutopay ? 'block' : 'none';
+ 
+  // Update next steps body copy based on whether autopay is available
+  if (isBank) {
+    document.getElementById('suc-next-body').textContent = 'Save your info to manage AutoPay, view billing history, and go paperless.';
+  }
+ 
+  goTo('s-success');
+}
+ 
+function sendReceipt() {
+  const el = document.getElementById('receipt-email'), er = document.getElementById('err-receipt');
+  const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value);
+  el.classList.toggle('err', !ok); er.classList.toggle('show', !ok);
+  if (!ok) return;
+  const bar = document.getElementById('snackbar');
+  bar.classList.add('show');
+  setTimeout(() => bar.classList.remove('show'), 2000);
+}
+ 
+function ordinalSuffix(n) {
+  const s = ['th','st','nd','rd'], v = n % 100;
+  return n + (s[(v-20)%10] || s[v] || s[0]);
+}
+ 
+function calcFirstPayDate(day) {
+  const today = new Date(), y = today.getFullYear(), m = today.getMonth();
+  let c = new Date(y, m, day);
+  if (c <= today) c = new Date(y, m + 1, day);
+  return c.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+}
+ 
+function updateFirstPayDate() {
+  const sel = document.getElementById('ap-pay-day'), day = parseInt(sel.value);
+  if (!day) return;
+  const dateStr = calcFirstPayDate(day);
+  S.ap.payDay = day;
+  S.ap.firstPayDate = dateStr;
+  S.ap.payDateLabel = ordinalSuffix(day) + 'th of each month';
+  document.getElementById('ap-sum-paydate').textContent  = ordinalSuffix(day) + ' of each month';
+  document.getElementById('ap-sum-firstpay').textContent = dateStr;
+}
+ 
+function confirmAutopay() {
+  if (!vSel('ap-pay-day','err-ap-pay-day')) return;
+ 
+  const cb = document.getElementById('ap-auth-check');
+  if (!cb.checked) {
+    cb.style.outline = '2px solid #d32f2f';
+    setTimeout(() => cb.style.outline = '', 2000);
+    return;
+  }
+ 
+  const maskedMethod = S.bankAcctType + ' ********' + S.bankAcctNum.slice(-4);
+  const emailVal = document.getElementById('ap-email').value || '—';
+ 
+  // Populate enrolled screen
+  document.getElementById('enr-date').textContent       = S._successDate;
+  document.getElementById('enr-conf-num').textContent   = document.getElementById('suc-conf-num').textContent;
+  document.getElementById('enr-amt').textContent        = S.amount;
+  document.getElementById('enr-sub').textContent        = S.subscriber;
+  document.getElementById('enr-acct').textContent       = S.acctNum;
+  document.getElementById('enr-method').textContent     = maskedMethod;
+  document.getElementById('enr-ap-method').textContent  = maskedMethod;
+  document.getElementById('enr-ap-paydate').textContent = S.ap.payDateLabel || '—';
+  document.getElementById('enr-ap-nextpay').textContent = S.ap.firstPayDate || '—';
+  document.getElementById('enr-ap-email').textContent   = emailVal;
+ 
+  goTo('s-enrolled');
+  // Always start Card 1 collapsed
+  const d = document.getElementById('enr-card1-details');
+  const l = document.getElementById('enr-toggle-label');
+  const i = document.getElementById('enr-toggle-icon');
+  if (d) d.style.display = 'none';
+  if (l) l.textContent = 'View details';
+  if (i) i.textContent = 'expand_more';
+}
+ 
+function submitAccount() {
+  let ok = true;
+  if (!vReq('a-first','err-a-first')) ok = false;
+  if (!vReq('a-last','err-a-last')) ok = false;
+  const ae = document.getElementById('a-email');
+  const aev = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ae.value);
+  ae.classList.toggle('err', !aev); document.getElementById('err-a-email').classList.toggle('show', !aev);
+  if (!aev) ok = false;
+  if (!vReq('a-pw','err-a-pw')) ok = false;
+  if (!vMatch('a-pw','a-pw2','err-a-pw2')) ok = false;
+  if (!ok) return;
+  alert('Account created! (prototype end state)');
+}
+ 
+/* INPUT MASKS */
+// DOB fields — numeric only + auto-advance
+document.getElementById('f-dob-day').addEventListener('input', function() {
+  this.value = this.value.replace(/\D/g,'').substring(0,2);
+  this.classList.remove('err');
+  document.getElementById('err-f-dob-day').classList.remove('show');
+  if (this.value.length === 2) document.getElementById('f-dob-month').focus();
+});
+document.getElementById('f-dob-month').addEventListener('input', function() {
+  this.value = this.value.replace(/\D/g,'').substring(0,2);
+  this.classList.remove('err');
+  document.getElementById('err-f-dob-month').classList.remove('show');
+  if (this.value.length === 2) document.getElementById('f-dob-year').focus();
+});
+document.getElementById('f-dob-year').addEventListener('input', function() {
+  this.value = this.value.replace(/\D/g,'').substring(0,4);
+  this.classList.remove('err');
+  document.getElementById('err-f-dob-year').classList.remove('show');
+});
+// SSN section DOB — same pattern
+document.getElementById('f-ssn-dob-day').addEventListener('input', function() {
+  this.value = this.value.replace(/\D/g,'').substring(0,2);
+  this.classList.remove('err');
+  document.getElementById('err-f-ssn-dob-day').classList.remove('show');
+  if (this.value.length === 2) document.getElementById('f-ssn-dob-month').focus();
+});
+document.getElementById('f-ssn-dob-month').addEventListener('input', function() {
+  this.value = this.value.replace(/\D/g,'').substring(0,2);
+  this.classList.remove('err');
+  document.getElementById('err-f-ssn-dob-month').classList.remove('show');
+  if (this.value.length === 2) document.getElementById('f-ssn-dob-year').focus();
+});
+document.getElementById('f-ssn-dob-year').addEventListener('input', function() {
+  this.value = this.value.replace(/\D/g,'').substring(0,4);
+  this.classList.remove('err');
+  document.getElementById('err-f-ssn-dob-year').classList.remove('show');
+});
+document.getElementById('card-num').addEventListener('input', function() { this.value = this.value.replace(/\D/g,'').substring(0,16).replace(/(.{4})/g,'$1 ').trim(); });
+document.getElementById('card-exp').addEventListener('input', function() { let v = this.value.replace(/\D/g,'').substring(0,4); if (v.length >= 3) v = v.slice(0,2)+'/'+v.slice(2); this.value = v; });
+document.getElementById('f-zip').addEventListener('input', function() { this.value = this.value.replace(/\D/g,'').substring(0,5); });
+document.getElementById('f-ssn-zip').addEventListener('input', function() { this.value = this.value.replace(/\D/g,'').substring(0,5); });
+document.getElementById('f-ssn').addEventListener('input', function() { this.value = this.value.replace(/\D/g,'').substring(0,4); });
+document.getElementById('bank-zip').addEventListener('input', function() { this.value = this.value.replace(/\D/g,'').substring(0,5); });
+ 
+document.querySelectorAll('select').forEach(sel => {
+  sel.addEventListener('change', function() {
+    this.classList.toggle('has-val', !!this.value);
+    this.classList.remove('err');
+    const er = document.getElementById('err-'+this.id);
+    if (er) er.classList.remove('show');
+  });
+});
+ 
+(function init() {
+  // Populate payment day dropdown
+  const daySelect = document.getElementById('ap-pay-day');
+  for (let d = 1; d <= 28; d++) {
+    const opt = document.createElement('option');
+    opt.value = d;
+    opt.textContent = ordinalSuffix(d) + ' of every month';
+    daySelect.appendChild(opt);
+  }
+  selectAmount('total');
+  selectPayMethod('card');
+})();
+</script>
 </body>
 </html>
+ 
