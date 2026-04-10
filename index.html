@@ -138,7 +138,7 @@
   </style>
 </head>
 <body>
- 
+
 <!-- HEADER -->
 <header class="header">
   <div class="logo">
@@ -151,13 +151,26 @@
     <div class="logo-text"><span class="aqua">Aqua</span><span class="hc">Healthcare</span></div>
   </div>
 </header>
- 
+
 <!-- ══ SCREEN 1 — PAY AS GUEST ══ -->
 <div class="screen active" id="s-find">
   <div class="col">
     <div>
       <h1 class="page-title">Pay as guest</h1>
       <p class="page-subtitle">Enter your account number or the last 4 of your Social Security Number (SSN) to find your account</p>
+    </div>
+
+    <!-- Account not found error banner — hidden by default -->
+    <div id="find-error-banner" style="display:none;background:#fdecea;border:1px solid #f5c6c2;border-radius:6px;padding:14px 16px;">
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <span class="material-icons" style="font-size:20px;color:#d32f2f;flex-shrink:0;margin-top:1px;">error_outline</span>
+        <div>
+          <p style="font-size:14px;font-weight:700;color:#d32f2f;margin:0 0 2px 0;">Account not found</p>
+          <p style="font-size:14px;font-weight:400;color:#d32f2f;margin:0;" id="find-error-body">
+            Check your details and try again, or <a href="#" onclick="selectFind('ssn');document.getElementById('find-error-banner').style.display='none';return false;" style="color:#d32f2f;text-decoration:underline;">search by SSN.</a>
+          </p>
+        </div>
+      </div>
     </div>
     <div class="radio-row selected" id="find-acct-row" onclick="selectFind('acct')">
       <div class="radio-row-header">
@@ -173,7 +186,7 @@
       </div>
       <div class="radio-expanded open" id="find-acct-fields">
         <div class="mf"><input type="text" id="f-acctnum" placeholder=" " /><label>Account number</label><div class="ferr" id="err-f-acctnum">Account number is required.</div></div>
- 
+
         <!-- Subscriber's date of birth -->
         <p style="font-size:14px;font-weight:400;line-height:1.43;letter-spacing:0.17px;color:rgba(0,0,0,0.87);margin:8px 0 4px 0;">Subscriber's date of birth</p>
         <div class="frow">
@@ -193,7 +206,7 @@
             <div class="ferr" id="err-f-dob-year">Required.</div>
           </div>
         </div>
- 
+
         <div class="mf"><input type="text" id="f-zip" placeholder=" " maxlength="5" /><label>Zip code</label><div class="ferr" id="err-f-zip">Zip code is required.</div></div>
       </div>
     </div>
@@ -201,7 +214,7 @@
       <div class="radio-row-header"><div class="r-circle"><div class="r-dot"></div></div><span class="r-label">Find by Social Security Number (SSN)</span></div>
       <div class="radio-expanded" id="find-ssn-fields">
         <div class="mf"><input type="text" id="f-ssn" placeholder=" " maxlength="4" /><label>Last 4 of Social Security Number</label><div class="ferr" id="err-f-ssn">SSN is required.</div></div>
- 
+
         <!-- Subscriber's date of birth -->
         <p style="font-size:14px;font-weight:400;line-height:1.43;letter-spacing:0.17px;color:rgba(0,0,0,0.87);margin:8px 0 4px 0;">Subscriber's date of birth</p>
         <div class="frow">
@@ -221,7 +234,7 @@
             <div class="ferr" id="err-f-ssn-dob-year">Required.</div>
           </div>
         </div>
- 
+
         <div class="mf"><input type="text" id="f-ssn-zip" placeholder=" " maxlength="5" /><label>Zip code</label><div class="ferr" id="err-f-ssn-zip">Zip code is required.</div></div>
       </div>
     </div>
@@ -241,7 +254,7 @@
     </div>
   </div>
 </div>
- 
+
 <!-- ══ SCREEN 2 — MAKE A PAYMENT ══ -->
 <div class="screen" id="s-payment">
   <div class="col">
@@ -317,7 +330,7 @@
           </div>
           <div class="mf" style="flex:1"><input type="text" id="bank-zip" placeholder=" " maxlength="5" /><label>Zipcode</label><div class="ferr" id="err-bank-zip">Zip code is required.</div></div>
         </div>
- 
+
         <!-- AutoPay opt-in checkbox -->
         <div style="display:flex;align-items:flex-start;gap:10px;background:#fff;border:1px solid var(--border-card);border-radius:var(--radius-card);padding:14px 16px;margin-top:8px;">
           <input type="checkbox" id="wants-autopay" onchange="S.wantsAutopay = this.checked;" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#0970c5;cursor:pointer;" />
@@ -326,7 +339,7 @@
             <p style="font-size:12px;color:rgba(0,0,0,0.6);line-height:1.5;margin:0;">After this payment, you can review and confirm your AutoPay details</p>
           </label>
         </div>
- 
+
       </div>
     </div>
     <div class="nav-row">
@@ -335,7 +348,7 @@
     </div>
   </div>
 </div>
- 
+
 <!-- ══ SCREEN 3 — REVIEW PAYMENT ══ -->
 <div class="screen" id="s-review">
   <div class="col">
@@ -345,26 +358,26 @@
     </div>
     <div class="card">
       <div class="card-body">
- 
+
         <!-- TOTAL row -->
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
           <span style="font-size:12px;font-weight:400;letter-spacing:1px;text-transform:uppercase;color:#323a41;line-height:2.66;">TOTAL</span>
           <span style="font-size:34px;font-weight:700;letter-spacing:0.25px;color:rgba(0,0,0,0.87);line-height:1.235;" id="rev-amt">$100.00</span>
         </div>
         <hr class="div" style="margin:0 0 20px 0;" />
- 
+
         <!-- Detail rows -->
         <div class="rev-row"><span class="rev-rlabel">Subscriber</span><span class="rev-rvalue" id="rev-sub">Lily Allen</span></div>
         <div class="rev-row"><span class="rev-rlabel">Account Number</span><span class="rev-rvalue" id="rev-acct">192829918</span></div>
         <div class="rev-row"><span class="rev-rlabel">Payment method</span><span class="rev-rvalue" id="rev-method">Checking ****4242</span></div>
- 
+
         <!-- Centered EDIT link -->
         <div style="text-align:center;margin-top:20px;">
           <button onclick="goTo('s-payment');clearPayFields();" style="background:none;border:none;cursor:pointer;color:#0970c5;font-size:14px;font-weight:500;font-family:var(--font);letter-spacing:0.4px;display:inline-flex;align-items:center;gap:4px;padding:0;text-transform:uppercase;">
             <span class="material-icons" style="font-size:16px;">edit</span> EDIT
           </button>
         </div>
- 
+
       </div>
     </div>
     <div class="nav-row">
@@ -373,15 +386,15 @@
     </div>
   </div>
 </div>
- 
+
 <!-- ══ SCREEN 4 — PAYMENT SUCCESS ══ -->
 <div class="screen" id="s-success">
   <div class="col">
- 
+
     <!-- CARD 1 — Payment confirmation -->
     <div style="background:#fff;border:1px solid #b0bec5;border-radius:6px;overflow:hidden;border-top:8px solid #388e3c;">
       <div style="padding:24px 32px;display:flex;flex-direction:column;gap:20px;">
- 
+
         <!-- Card header: check + heading/date LEFT, amount/label RIGHT -->
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
           <div style="display:flex;align-items:flex-start;gap:12px;">
@@ -396,7 +409,7 @@
             <p style="font-size:12px;font-weight:400;letter-spacing:1px;text-transform:uppercase;color:rgba(0,0,0,0.6);margin:0;">TOTAL</p>
           </div>
         </div>
- 
+
         <!-- Detail rows -->
         <div>
           <hr style="border:none;border-top:1px solid rgba(0,0,0,0.12);margin:0 0 12px 0;" />
@@ -405,7 +418,7 @@
         <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Account Number</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="suc-acct">192829918</span></div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Payment method</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="suc-method">Checking &#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;7890</span></div>
         </div>
- 
+
         <!-- Email receipt: bold heading + sub + input/button row -->
         <div style="display:flex;flex-direction:column;gap:10px;">
           <div>
@@ -423,20 +436,20 @@
             </button>
           </div>
         </div>
- 
+
       </div>
     </div>
- 
+
     <!-- CARD 2 — Complete AutoPay Setup (bank + wantsAutopay only) -->
     <div id="suc-autopay-card" style="display:none;background:#fff;border:1px solid #b0bec5;border-radius:6px;overflow:hidden;border-top:8px solid #0970c5;">
       <div style="padding:24px 32px;display:flex;flex-direction:column;gap:20px;">
- 
+
         <!-- Header: no check circle -->
         <div>
           <p style="font-size:24px;font-weight:400;line-height:1.333;color:rgba(0,0,0,0.87);margin:0 0 4px 0;">Complete AutoPay Setup</p>
           <p style="font-size:14px;font-weight:400;line-height:1.43;color:rgba(0,0,0,0.6);margin:0;">Have your payment withdrawn automatically each month.</p>
         </div>
- 
+
         <!-- Summary rows with dividers between each -->
         <div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(0,0,0,0.12);">
@@ -468,20 +481,20 @@
             <span style="font-size:20px;font-weight:700;color:rgba(0,0,0,0.87);" id="ap-sum-firstpay">&#8212;</span>
           </div>
         </div>
- 
+
         <!-- Payment Date dropdown -->
         <div class="mf sel-wrap">
           <select id="ap-pay-day" onchange="updateFirstPayDate()"><option value="" disabled selected>Select day</option></select>
           <label>Payment Date</label>
           <div class="ferr" id="err-ap-pay-day">Please select a payment date.</div>
         </div>
- 
+
         <!-- Email optional -->
         <div class="mf">
           <input type="email" id="ap-email" placeholder=" " />
           <label>Email (optional)</label>
         </div>
- 
+
         <!-- Checkbox + legal -->
         <div style="display:flex;align-items:flex-start;gap:10px;">
           <input type="checkbox" id="ap-auth-check" style="margin-top:3px;flex-shrink:0;width:16px;height:16px;accent-color:#0970c5;cursor:pointer;" />
@@ -489,15 +502,15 @@
             I agree to the autopay draft date and amount. Payment will be automatically withdrawn from your account on the scheduled date. You can cancel anytime.
           </label>
         </div>
- 
+
         <!-- SETUP AUTOPAY -->
         <button onclick="confirmAutopay()" style="width:100%;height:44px;background:#0970c5;border:none;border-radius:4px;color:#fff;font-family:var(--font);font-size:14px;font-weight:500;letter-spacing:0.4px;text-transform:uppercase;cursor:pointer;box-shadow:0px 1px 5px rgba(0,0,0,0.12),0px 2px 2px rgba(0,0,0,0.14),0px 3px 1px -2px rgba(0,0,0,0.20);display:flex;align-items:center;justify-content:center;gap:6px;">
           SETUP AUTOPAY <span class="material-icons" style="font-size:16px;">chevron_right</span>
         </button>
- 
+
       </div>
     </div>
- 
+
     <!-- CARD 3 — Create an account -->
     <div style="background:#fff;border:1px solid #b0bec5;border-radius:6px;overflow:hidden;">
       <div style="padding:24px 32px;display:flex;flex-direction:column;gap:16px;">
@@ -521,18 +534,18 @@
         </div>
       </div>
     </div>
- 
+
   </div>
 </div>
- 
+
 <!-- ══ SCREEN 5 — ENROLLED IN AUTOPAY ══ -->
 <div class="screen" id="s-enrolled">
   <div class="col">
- 
+
     <!-- CARD 1 — Payment successful (collapsible) -->
     <div style="background:#fff;border:1px solid #b0bec5;border-radius:6px;overflow:hidden;border-top:8px solid #388e3c;">
       <div style="padding:24px 32px;">
- 
+
         <!-- Always-visible summary — exact same styling as s-success Card 1 -->
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
           <div style="display:flex;align-items:flex-start;gap:12px;">
@@ -547,10 +560,10 @@
             <p style="font-size:12px;font-weight:400;letter-spacing:1px;text-transform:uppercase;color:rgba(0,0,0,0.6);margin:0;">TOTAL</p>
           </div>
         </div>
- 
+
         <!-- Divider -->
         <hr style="border:none;border-top:1px solid rgba(0,0,0,0.12);margin:16px 0 0 0;" />
- 
+
         <!-- View/Hide details toggle row -->
         <button onclick="(function(){
           var d=document.getElementById('enr-card1-details');
@@ -564,7 +577,7 @@
           <span id="enr-toggle-label" style="font-size:14px;font-weight:400;color:#0970c5;">View details</span>
           <span id="enr-toggle-icon" class="material-icons" style="font-size:20px;color:rgba(0,0,0,0.54);">expand_more</span>
         </button>
- 
+
         <!-- Expandable detail content — hidden by default -->
         <div id="enr-card1-details" style="display:none;">
           <hr style="border:none;border-top:1px solid rgba(0,0,0,0.12);margin:12px 0;" />
@@ -572,7 +585,7 @@
           <div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Subscriber</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="enr-sub">Lily Allen</span></div>
           <div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Account</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="enr-acct">192829918</span></div>
           <div style="display:flex;justify-content:space-between;padding:3px 0;align-items:center;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Payment</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;display:flex;align-items:center;gap:6px;"><span class="material-icons" style="font-size:16px;color:rgba(0,0,0,0.4);">credit_card</span><span id="enr-method">Checking ···7890</span></span></div>
- 
+
           <!-- Email receipt -->
           <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px;">
             <div>
@@ -590,14 +603,14 @@
             </div>
           </div>
         </div>
- 
+
       </div>
     </div>
- 
+
     <!-- CARD 2 — Enrolled in AutoPay -->
     <div style="background:#fff;border:1px solid #b0bec5;border-radius:6px;overflow:hidden;border-top:8px solid #388e3c;">
       <div style="padding:24px 32px;display:flex;flex-direction:column;gap:20px;">
- 
+
         <!-- Card header: check + heading/date LEFT, amount/label RIGHT -->
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
           <div style="display:flex;align-items:flex-start;gap:12px;">
@@ -612,7 +625,7 @@
             <p style="font-size:12px;font-weight:400;letter-spacing:1px;text-transform:uppercase;color:rgba(0,0,0,0.6);margin:0;">ESTIMATED MONTHLY TOTAL</p>
           </div>
         </div>
- 
+
         <!-- Detail rows -->
         <div>
           <hr style="border:none;border-top:1px solid rgba(0,0,0,0.12);margin:0 0 12px 0;" />
@@ -622,10 +635,10 @@
         <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">First scheduled payment</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="enr-ap-nextpay">5/15/2026</span></div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;"><span style="font-size:12px;color:rgba(0,0,0,0.6);letter-spacing:0.15px;">Email</span><span style="font-size:14px;color:rgba(0,0,0,0.87);letter-spacing:0.17px;" id="enr-ap-email">&#8212;</span></div>
         </div>
- 
+
       </div>
     </div>
- 
+
     <!-- CARD 3 — Create an account -->
     <div style="background:#fff;border:1px solid #b0bec5;border-radius:6px;overflow:hidden;">
       <div style="padding:24px 32px;display:flex;flex-direction:column;gap:16px;">
@@ -649,10 +662,10 @@
         </div>
       </div>
     </div>
- 
+
   </div>
 </div>
- 
+
 <!-- ══ SCREEN 6 — CREATE ACCOUNT ══ -->
 <div class="screen" id="s-account">
   <div class="col">
@@ -677,17 +690,17 @@
     </div>
   </div>
 </div>
- 
+
 <!-- Global hover tooltip — fixed position, always on top -->
 <div id="hover-tooltip" style="display:none;position:fixed;background:rgba(50,50,50,0.92);color:#fff;font-size:12px;font-weight:400;line-height:1.5;padding:8px 12px;border-radius:4px;max-width:260px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.2);pointer-events:none;z-index:99999;white-space:normal;transform:translateX(-50%) translateY(-100%) translateY(-8px);"></div>
- 
+
 <!-- SNACKBAR -->
 <div class="snackbar" id="snackbar">
   <div class="snackbar-icon"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7L5.5 10.5L12 3.5" stroke="#2e7d2e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
   <span class="snackbar-text">Receipt sent</span>
   <button class="snackbar-close" onclick="document.getElementById('snackbar').classList.remove('show')">&#x2715;</button>
 </div>
- 
+
 <script>
 const S = {
   findMethod: 'acct', subscriber: 'Lily Allen', acctNum: '192829918',
@@ -697,20 +710,20 @@ const S = {
   ap: { payDay: '', firstPayDate: '', payDateLabel: '' },
   _successDate: '',
 };
- 
+
 function goTo(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
- 
+
 function showTooltip(id, e) {
   e.stopPropagation();
   // Hide any other open tooltips first
   document.querySelectorAll('.acct-tooltip').forEach(t => t.classList.remove('visible'));
   document.getElementById(id).classList.add('visible');
 }
- 
+
 function showHoverTooltip(e, text) {
   const tip = document.getElementById('hover-tooltip');
   tip.textContent = text;
@@ -726,11 +739,11 @@ function moveHoverTooltip(e) {
   tip.style.left = e.clientX + 'px';
   tip.style.top  = e.clientY + 'px';
 }
- 
+
 document.addEventListener('click', function() {
   document.querySelectorAll('.acct-tooltip').forEach(t => t.classList.remove('visible'));
 });
- 
+
 function selectFind(m) {
   S.findMethod = m;
   ['acct','ssn'].forEach(k => {
@@ -738,7 +751,7 @@ function selectFind(m) {
     document.getElementById('find-'+k+'-fields').classList.toggle('open', k === m);
   });
 }
- 
+
 function selectAmount(m) {
   S.amtMethod = m;
   document.getElementById('amt-total-row').classList.toggle('selected', m === 'total');
@@ -747,7 +760,7 @@ function selectAmount(m) {
   if (m === 'total') { S.amount = '$127.50'; }
   else { setTimeout(() => document.getElementById('custom-amt').focus(), 50); }
 }
- 
+
 function selectPayMethod(m) {
   S.payMethod = m;
   document.getElementById('pay-card-row').classList.toggle('selected', m === 'card');
@@ -755,7 +768,7 @@ function selectPayMethod(m) {
   document.getElementById('card-fields').classList.toggle('open', m === 'card');
   document.getElementById('bank-fields').classList.toggle('open', m === 'bank');
 }
- 
+
 function clearPayFields() {
   ['card-num','card-exp','card-cvv','card-name','bank-acct-num','confirm-acct',
    'routing-num','confirm-routing','bank-addr1','bank-addr2','bank-city','bank-zip'].forEach(id => {
@@ -773,7 +786,7 @@ function clearPayFields() {
   const cb = document.getElementById('wants-autopay');
   if (cb) cb.checked = false;
 }
- 
+
 function vReq(inputId, errId) {
   const el = document.getElementById(inputId), er = document.getElementById(errId);
   const bad = !el || !el.value.trim();
@@ -795,16 +808,42 @@ function vSel(selId, errId) {
   if (er) er.classList.toggle('show', bad);
   return !bad;
 }
- 
+
 function submitFind() {
   let ok = true;
+
+  // Hide banner at start of each attempt
+  document.getElementById('find-error-banner').style.display = 'none';
+
   if (S.findMethod === 'acct') {
+    const allBlank = !document.getElementById('f-acctnum').value.trim() &&
+                     !document.getElementById('f-dob-day').value.trim() &&
+                     !document.getElementById('f-dob-month').value.trim() &&
+                     !document.getElementById('f-dob-year').value.trim() &&
+                     !document.getElementById('f-zip').value.trim();
+    if (allBlank) {
+      document.getElementById('find-error-body').innerHTML =
+        'Check your details and try again, or <a href="#" onclick="selectFind(\'ssn\');document.getElementById(\'find-error-banner\').style.display=\'none\';return false;" style="color:#d32f2f;text-decoration:underline;">search by SSN.</a>';
+      document.getElementById('find-error-banner').style.display = 'block';
+      return;
+    }
     if (!vReq('f-acctnum','err-f-acctnum')) ok = false;
     if (!vReq('f-dob-day','err-f-dob-day')) ok = false;
     if (!vReq('f-dob-month','err-f-dob-month')) ok = false;
     if (!vReq('f-dob-year','err-f-dob-year')) ok = false;
     if (!vReq('f-zip','err-f-zip')) ok = false;
   } else {
+    const allBlank = !document.getElementById('f-ssn').value.trim() &&
+                     !document.getElementById('f-ssn-dob-day').value.trim() &&
+                     !document.getElementById('f-ssn-dob-month').value.trim() &&
+                     !document.getElementById('f-ssn-dob-year').value.trim() &&
+                     !document.getElementById('f-ssn-zip').value.trim();
+    if (allBlank) {
+      document.getElementById('find-error-body').innerHTML =
+        'Check your details and try again, or <a href="#" onclick="selectFind(\'acct\');document.getElementById(\'find-error-banner\').style.display=\'none\';return false;" style="color:#d32f2f;text-decoration:underline;">search by account number.</a>';
+      document.getElementById('find-error-banner').style.display = 'block';
+      return;
+    }
     if (!vReq('f-ssn','err-f-ssn')) ok = false;
     if (!vReq('f-ssn-dob-day','err-f-ssn-dob-day')) ok = false;
     if (!vReq('f-ssn-dob-month','err-f-ssn-dob-month')) ok = false;
@@ -812,16 +851,16 @@ function submitFind() {
     if (!vReq('f-ssn-zip','err-f-ssn-zip')) ok = false;
   }
   if (!ok) return;
- 
+
   if (S.findMethod === 'acct') {
     S.acctNum = document.getElementById('f-acctnum').value.trim();
   }
- 
+
   document.getElementById('pay-subscriber').textContent = S.subscriber;
   document.getElementById('pay-acctnum').textContent = S.acctNum;
   goTo('s-payment');
 }
- 
+
 function submitPayment() {
   let ok = true;
   if (S.amtMethod === 'custom') {
@@ -829,7 +868,7 @@ function submitPayment() {
     if (!ca.value.trim()) { ca.classList.add('err'); document.getElementById('err-custom-amt').classList.add('show'); ok = false; }
     else { ca.classList.remove('err'); document.getElementById('err-custom-amt').classList.remove('show'); S.amount = ca.value.startsWith('$') ? ca.value : '$'+ca.value; }
   } else { S.amount = '$127.50'; }
- 
+
   if (S.payMethod === 'card') {
     if (!vReq('card-num','err-card-num')) ok = false;
     if (!vReq('card-exp','err-card-exp')) ok = false;
@@ -853,25 +892,25 @@ function submitPayment() {
     }
   }
   if (!ok) return;
- 
+
   document.getElementById('rev-amt').textContent    = S.amount;
   document.getElementById('rev-sub').textContent    = S.subscriber;
   document.getElementById('rev-acct').textContent   = S.acctNum;
   document.getElementById('rev-method').textContent = S.methodLbl;
   goTo('s-review');
 }
- 
+
 function submitReview() {
   const now = new Date();
   S._successDate = now.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) + ' at ' + now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
- 
+
   document.getElementById('suc-date').textContent  = S._successDate;
   document.getElementById('suc-amt').textContent   = S.amount;
   document.getElementById('suc-sub').textContent   = S.subscriber;
   document.getElementById('suc-acct').textContent  = S.acctNum;
- 
+
   const isBank = S.payMethod === 'bank';
- 
+
   // Payment method display — full masking for bank as shown in design
   if (isBank) {
     const masked = S.bankAcctType + ' ********' + S.bankAcctNum.slice(-4);
@@ -880,19 +919,19 @@ function submitReview() {
   } else {
     document.getElementById('suc-method').textContent = S.methodLbl;
   }
- 
+
   // Show AutoPay setup card only for bank users who opted in
   const showAutopay = isBank && S.wantsAutopay;
   document.getElementById('suc-autopay-card').style.display = showAutopay ? 'block' : 'none';
- 
+
   // Update next steps body copy based on whether autopay is available
   if (isBank) {
     document.getElementById('suc-next-body').textContent = 'Save your info to manage AutoPay, view billing history, and go paperless.';
   }
- 
+
   goTo('s-success');
 }
- 
+
 function sendReceipt() {
   const el = document.getElementById('receipt-email'), er = document.getElementById('err-receipt');
   const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value);
@@ -902,19 +941,19 @@ function sendReceipt() {
   bar.classList.add('show');
   setTimeout(() => bar.classList.remove('show'), 2000);
 }
- 
+
 function ordinalSuffix(n) {
   const s = ['th','st','nd','rd'], v = n % 100;
   return n + (s[(v-20)%10] || s[v] || s[0]);
 }
- 
+
 function calcFirstPayDate(day) {
   const today = new Date(), y = today.getFullYear(), m = today.getMonth();
   let c = new Date(y, m, day);
   if (c <= today) c = new Date(y, m + 1, day);
   return c.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
 }
- 
+
 function updateFirstPayDate() {
   const sel = document.getElementById('ap-pay-day'), day = parseInt(sel.value);
   if (!day) return;
@@ -925,20 +964,20 @@ function updateFirstPayDate() {
   document.getElementById('ap-sum-paydate').textContent  = ordinalSuffix(day) + ' of each month';
   document.getElementById('ap-sum-firstpay').textContent = dateStr;
 }
- 
+
 function confirmAutopay() {
   if (!vSel('ap-pay-day','err-ap-pay-day')) return;
- 
+
   const cb = document.getElementById('ap-auth-check');
   if (!cb.checked) {
     cb.style.outline = '2px solid #d32f2f';
     setTimeout(() => cb.style.outline = '', 2000);
     return;
   }
- 
+
   const maskedMethod = S.bankAcctType + ' ********' + S.bankAcctNum.slice(-4);
   const emailVal = document.getElementById('ap-email').value || '—';
- 
+
   // Populate enrolled screen
   document.getElementById('enr-date').textContent       = S._successDate;
   document.getElementById('enr-conf-num').textContent   = document.getElementById('suc-conf-num').textContent;
@@ -950,7 +989,7 @@ function confirmAutopay() {
   document.getElementById('enr-ap-paydate').textContent = S.ap.payDateLabel || '—';
   document.getElementById('enr-ap-nextpay').textContent = S.ap.firstPayDate || '—';
   document.getElementById('enr-ap-email').textContent   = emailVal;
- 
+
   goTo('s-enrolled');
   // Always start Card 1 collapsed
   const d = document.getElementById('enr-card1-details');
@@ -960,7 +999,7 @@ function confirmAutopay() {
   if (l) l.textContent = 'View details';
   if (i) i.textContent = 'expand_more';
 }
- 
+
 function submitAccount() {
   let ok = true;
   if (!vReq('a-first','err-a-first')) ok = false;
@@ -974,7 +1013,7 @@ function submitAccount() {
   if (!ok) return;
   alert('Account created! (prototype end state)');
 }
- 
+
 /* INPUT MASKS */
 // DOB fields — numeric only + auto-advance
 document.getElementById('f-dob-day').addEventListener('input', function() {
@@ -1018,7 +1057,7 @@ document.getElementById('f-zip').addEventListener('input', function() { this.val
 document.getElementById('f-ssn-zip').addEventListener('input', function() { this.value = this.value.replace(/\D/g,'').substring(0,5); });
 document.getElementById('f-ssn').addEventListener('input', function() { this.value = this.value.replace(/\D/g,'').substring(0,4); });
 document.getElementById('bank-zip').addEventListener('input', function() { this.value = this.value.replace(/\D/g,'').substring(0,5); });
- 
+
 document.querySelectorAll('select').forEach(sel => {
   sel.addEventListener('change', function() {
     this.classList.toggle('has-val', !!this.value);
@@ -1027,7 +1066,7 @@ document.querySelectorAll('select').forEach(sel => {
     if (er) er.classList.remove('show');
   });
 });
- 
+
 (function init() {
   // Populate payment day dropdown
   const daySelect = document.getElementById('ap-pay-day');
@@ -1043,4 +1082,3 @@ document.querySelectorAll('select').forEach(sel => {
 </script>
 </body>
 </html>
- 
